@@ -1,0 +1,44 @@
+#import todo.graphql
+
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type Query {
+    user(id: ID @eq): User @find
+    users: [User!]! @paginate(defaultCount: 10)
+    # todo(id: ID @eq): Todo! @find
+    # todos: [Todo!] @paginate(defaultCount: 10)
+    me: User @auth(guard: "sanctum")
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    todo: Todo @hasMany
+}
+
+
+type Mutation {
+    createTodo(
+        name: String!
+        due_date: Date!,
+        finished: Boolean!,
+        user_id: Int!
+    ): Todo! @create
+
+    updateTodo(
+        id: ID!,
+        name: String,
+        due_date: Date,
+        finished: Boolean,
+        user_id: Int
+    ): Todo @update
+
+    deleteTodo(id: ID!): Todo @delete
+
+    login(email: String!, password: String!): String
+        @field(resolver: "AuthMutator@login")
+}
